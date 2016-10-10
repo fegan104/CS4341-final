@@ -1,3 +1,5 @@
+# coding: utf-8
+
 #Board specific variables
 UP = (-1, 0)
 DN = (1, 0)
