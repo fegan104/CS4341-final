@@ -15,12 +15,26 @@ RT = (0, 1)
 LF = (0, -1)
 BLOCK = 3 # this doesn't have to be 3 it's just random
 MOVES = [UP, DN, RT, LF]
+#The random board for our program
+BOARD, H, W = generate_board()
+#initialize our Q matrix
+Q = q_init(H, W)
+
+def q_init(h, w):
+	q = [][]
+	for x in xrange(h):
+		for y in xrange(w):
+			q.append(Square())
+
+class Square(self):
+	up, down, left, right = 0
+
  
 def generate_board():
   """ Used to generate a random board with cheese, mouse traps, blocks, and exit door
   
   Return: 
-       a board made of 2D array 
+       a board made of 2D array, and the height and width
   """
   width = random.randint(2,10)
   height = random.randint(2,10)
@@ -42,10 +56,9 @@ def generate_board():
     if board[0][1] == 2 or board[0][1] == 3:
       board = generate_board()
       
-  return board
-  
-  
-def valid_moves(mouse, board):
+  return (board, height, width)
+   
+def valid_moves(mouse):
 	"""Used to find valid moves for a mouse on a given board.
 
 	Args:
@@ -68,10 +81,29 @@ def valid_moves(mouse, board):
 
 	return valid
 
+def get_reward(state, action):
+	"""Finds the reward for e from the current position making the given mov
+	Args:
+		state (int tuple): the current position
+		action (int tuple): the move to make
+
+	Returns:
+		the reward value form teh board
+	"""
+	return 0
+
+def update_q(state, action):
+	"""Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
+
+	Args:
+		state (int tuple): The current position
+		action (int tuple): The move we want to make
+	"""
+	Q[state[0]][state[1]]
+
 b1 = [[1, 1, 1],
 	  [1, 1, 1],
 	  [1, 1, 1]]
-
 b2 = [[1, 3, 1],
 	 [1, 1, 3],
 	 [1, 1, 1]]
