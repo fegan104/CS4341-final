@@ -1,6 +1,13 @@
 import random
 import numpy as np
 
+#Board variables
+START = 0
+CHEESE = 1
+TRAP = 2
+BLOCK = 3
+GOAL = 4
+
 def generate_board():
   """ Used to generate a random board with cheese, mouse traps, blocks, and exit door
   
@@ -114,6 +121,56 @@ def update_q(state, action):
 	elif action == LF:
 		Q[state[0]][state[1]].right = new_q
 
+def symbolConvert(val):
+	if val == BLOCK:
+		return ' '
+	elif val == CHEESE:
+		return '+'
+	elif val == TRAP:
+		return 'x'
+	elif val == START:
+		return '.'
+	elif val == GOAL:
+		return 'G'
+	else:
+		return val
+
+def printBoard(board):
+	width = len(board[0])
+	height = len(board)
+
+	print "BOARD"
+	print
+	print '  ',
+	for w in xrange(-1, width):
+		print '-',
+	print
+
+	for h in xrange(0, height):
+		print '  |',
+		for w in xrange(0, width):
+			val = board[h][w]
+			print symbolConvert(val),
+
+			
+		print '|',
+		print
+
+	print '  ',
+	for w in xrange(-1, width):
+		print '-',
+	print
+	print
+
+def printLegend():
+	print "MAP LEGEND"
+	print " '", symbolConvert(BLOCK), "': no possible paths (barrier)"
+	print " '", symbolConvert(CHEESE), "': cheese"
+	print " '", symbolConvert(TRAP), "': trap"
+	print " '", symbolConvert(START), "': normal path"
+	print " '", symbolConvert(GOAL), "': goal!!!"
+	print
+
 class Square:
 	up = 0
 	down = 0
@@ -122,12 +179,7 @@ class Square:
 
 	def __repr__(self):
 		return 'SQR(%s, %s, %s, %s)' % (self.up, self.right, self.down, self.left)
-#Board variables
-START = 0
-CHEESE = 1
-TRAP = 2
-BLOCK = 3
-GOAL = 4
+
 #Move action variables
 UP = (-1, 0)
 DN = (1, 0)
@@ -137,7 +189,10 @@ MOVES = [UP, DN, RT, LF]
 
 #The random board for our program
 BOARD, H, W = generate_board()
-print np.matrix(BOARD)
+
+printLegend()
+printBoard(BOARD)
+
 #Mouse
 MOUSE = (0, 0)
 #initialize our Q matrix
