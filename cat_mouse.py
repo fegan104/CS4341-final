@@ -8,7 +8,11 @@ TRAP = 2
 BLOCK = 3
 GOAL = 4
 
-# generates a board
+# Reward constants
+CHEESE_REWARD = 100
+TRAP_REWARD = -500
+GOAL_REWARD = 500
+
 def generate_board():
   """ Used to generate a random board with cheese, mouse traps, blocks, and exit door
   
@@ -37,7 +41,6 @@ def generate_board():
       
   return board, height, width
 
-# todo: write comment
 def q_init(h, w):
 	"""Creates a Q with Square all set to 0
 	Args:
@@ -54,7 +57,6 @@ def q_init(h, w):
 			q[x].append(Square())
 	return q
    
-# todo: write comment
 def valid_moves():
 	"""Used to find valid moves for a mouse on a given board.
 
@@ -69,12 +71,11 @@ def valid_moves():
 	for mv in MOVES:
 		x = MOUSE[0] + mv[0]
 		y = MOUSE[1] + mv[1]
-		if 0 <= x < width and 0 <= y < height and BOARD[x][y] != BLOCK:
+		if 0 <= x < width - 1 and 0 <= y < height - 1 and BOARD[x][y] != BLOCK:
 			valid.append(mv)
 
 	return valid
 
-# todo: write comment
 def get_reward(state, action):
 	#TODO find reward from Q or Board?
 	"""Finds the reward for the from the current position making the given move
@@ -85,19 +86,35 @@ def get_reward(state, action):
 	Returns:
 		the reward value form the board
 	"""
-	#find tile the move takes us to
-	next_sqr = Q[state[0]][state[1]]
-	#return a value from our Square based on how we got here
-	if action == UP:
-		return next_sqr.down
-	elif action == DN:
-		return next_sqr.up
-	elif action == RT:
-		return next_sqr.left
-	elif action == LF:
-		return next_sqr.right
+	newState = state
+	newState = (newState[0] + action[0] , newState[1] + action[1])
+	rewardValue = 0
 
-# todo: write comment
+	currentPossition = BOARD[ newState[0] ][ newState[1] ]
+
+	if currentPossition == CHEESE:
+		rewardValue = CHEESE_REWARD
+	elif currentPossition == TRAP:
+		rewardValue = TRAP_REWARD	
+	elif currentPossition == GOAL:
+		rewardValue = GOAL_REWARD
+	else: # No reward given
+		rewardValue = 0
+
+	return rewardValue
+
+	# #find tile the move takes us to
+	# next_sqr = Q[state[0]][state[1]]
+	# #return a value from our Square based on how we got here
+	# if action == UP:
+	# 	return next_sqr.down
+	# elif action == DN:
+	# 	return next_sqr.up
+	# elif action == RT:
+	# 	return next_sqr.left
+	# elif action == LF:
+	# 	return next_sqr.right
+
 def update_q(state, action):
 	"""Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
 
@@ -127,8 +144,10 @@ def update_q(state, action):
 	elif action == LF:
 		Q[state[0]][state[1]].right = new_q
 
-# Converts board variables into graphic symbols
 def symbolConvert(val):
+	"""
+	Converts board variables into graphic symbols
+	"""
 	if val == BLOCK:
 		return ' '
 	elif val == CHEESE:
@@ -142,8 +161,10 @@ def symbolConvert(val):
 	else:
 		return val
 
-# Print the legend
 def printLegend():
+	"""
+	Print the legend
+	"""
 	print "MAP LEGEND"
 	print " '", symbolConvert(BLOCK), "': no possible paths (barrier)"
 	print " '", symbolConvert(CHEESE), "': cheese"
@@ -152,8 +173,10 @@ def printLegend():
 	print " '", symbolConvert(GOAL), "': goal!!!"
 	print
 
-# Print the board
 def printBoard(board):
+	"""
+	Print the board
+	"""
 	width = len(board[0])
 	height = len(board)
 
