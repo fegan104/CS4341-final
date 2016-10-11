@@ -68,15 +68,25 @@ def valid_moves(mouse):
 	return valid
 
 def get_reward(state, action):
-	"""Finds the reward for the from the current position making the given mov
+	"""Finds the reward for the from the current position making the given move
 	Args:
 		state (int tuple): the current position
 		action (int tuple): the move to make
 
 	Returns:
-		the reward value form teh board
+		the reward value form the board
 	"""
-	return 0
+	#find tile the move takes us to
+	next_sqr = BOARD[state[0] + action[0]][state[1] + action[1]]
+	#return a value from our Square based on how we got here
+	if action == UP:
+		return next_sqr.down
+	elif action == DN:
+		return next_sqr.up
+	elif action == RT:
+		return next_sqr.left
+	elif action == LF:
+		return next_sqr.right
 
 def update_q(state, action):
 	"""Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
@@ -92,17 +102,17 @@ class Square:
 	down = 0
 	left = 0
 	right = 0
-
-#0 - safe position
-#1 - cheese
-#2 = mouse trap
-#3 = bloackage
-#4 = finish Goal
+#Board variables
+START = 0
+CHEESE = 1
+TRAP = 2
+BLOCK = 3
+GOAL = 4
+#Move action variables
 UP = (-1, 0)
 DN = (1, 0)
 RT = (0, 1)
 LF = (0, -1)
-BLOCK = 3
 MOVES = [UP, DN, RT, LF]
 
 #The random board for our program
