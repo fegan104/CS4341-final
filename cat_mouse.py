@@ -1,35 +1,5 @@
 import random
-#Board 
-""" 
-#0 - safe position
-#1 - cheese
-#2 = mouse trap
-#3 = bloackage
-#4 = finish Goal
 
-"""
-#Board specific variables
-UP = (-1, 0)
-DN = (1, 0)
-RT = (0, 1)
-LF = (0, -1)
-BLOCK = 3 # this doesn't have to be 3 it's just random
-MOVES = [UP, DN, RT, LF]
-#The random board for our program
-BOARD, H, W = generate_board()
-#initialize our Q matrix
-Q = q_init(H, W)
-
-def q_init(h, w):
-	q = [][]
-	for x in xrange(h):
-		for y in xrange(w):
-			q.append(Square())
-
-class Square(self):
-	up, down, left, right = 0
-
- 
 def generate_board():
   """ Used to generate a random board with cheese, mouse traps, blocks, and exit door
   
@@ -54,9 +24,15 @@ def generate_board():
   #if no moves allowed initially then generate new board
   if board[1][0] == 2 or board[1][0] == 3:
     if board[0][1] == 2 or board[0][1] == 3:
-      board = generate_board()
+      board, height, width = generate_board()
       
-  return (board, height, width)
+  return board, height, width
+
+def q_init(h, w):
+	q = []
+	for x in xrange(h):
+		for y in xrange(w):
+			q.append(Square())
    
 def valid_moves(mouse):
 	"""Used to find valid moves for a mouse on a given board.
@@ -68,15 +44,15 @@ def valid_moves(mouse):
 	Return:
 		An array of possible moves.
 	"""
-	width = len(board)
-	height = len(board[0])
+	width = len(BOARD)
+	height = len(BOARD[0])
 	valid = []
 	
 	#check what moves don't go over the edge or hit a wall
 	for mv in MOVES:
 		x = mouse[0] + mv[0]
 		y = mouse[1] + mv[1]
-		if 0 <= x < width and 0 <= y < height and board[x][y] != BLOCK:
+		if 0 <= x < width and 0 <= y < height and BOARD[x][y] != BLOCK:
 			valid.append(mv)
 
 	return valid
@@ -101,6 +77,30 @@ def update_q(state, action):
 	"""
 	Q[state[0]][state[1]]
 
+class Square:
+	up = 0
+	down = 0
+	left = 0
+	right = 0
+
+#0 - safe position
+#1 - cheese
+#2 = mouse trap
+#3 = bloackage
+#4 = finish Goal
+UP = (-1, 0)
+DN = (1, 0)
+RT = (0, 1)
+LF = (0, -1)
+BLOCK = 3
+MOVES = [UP, DN, RT, LF]
+
+#The random board for our program
+BOARD, H, W = generate_board()
+
+#initialize our Q matrix
+Q = q_init(H, W)
+
 b1 = [[1, 1, 1],
 	  [1, 1, 1],
 	  [1, 1, 1]]
@@ -108,6 +108,6 @@ b2 = [[1, 3, 1],
 	 [1, 1, 3],
 	 [1, 1, 1]]
 
-print valid_moves((1, 1), b1)
-print valid_moves((1, 1), b2)
-print valid_moves((0, 2), b2)
+print valid_moves((1, 1))
+print valid_moves((1, 1))
+print valid_moves((0, 2))
