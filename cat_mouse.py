@@ -65,6 +65,7 @@ def valid_moves():
 	return valid
 
 def get_reward(state, action):
+	#TODO find reward from Q or Board?
 	"""Finds the reward for the from the current position making the given move
 	Args:
 		state (int tuple): the current position
@@ -122,6 +123,7 @@ class Square:
 
 	def __repr__(self):
 		return 'SQR(%s, %s, %s, %s)' % (self.up, self.right, self.down, self.left)
+
 #Board variables
 START = 0
 CHEESE = 1
@@ -135,11 +137,39 @@ RT = (0, 1)
 LF = (0, -1)
 MOVES = [UP, DN, RT, LF]
 
-#The random board for our program
-BOARD, H, W = generate_board()
-print np.matrix(BOARD)
-#Mouse
-MOUSE = (0, 0)
-#initialize our Q matrix
-Q = q_init(H, W)
-update_q((0, 0), DN)
+def learn():
+	"""
+	1. Set the gamma parameter, and environment rewards in matrix R.
+
+	2. Initialize matrix Q to zero.
+	
+	3. For each episode:
+	
+	Select a random initial state.
+	
+	Do While the goal state hasn't been reached.
+	
+	Select one among all possible actions for the current state.
+	Using this possible action, consider going to the next state.
+	Get maximum Q value for this next state based on all possible actions.
+	Compute: Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
+	Set the next state as the current state.
+	End Do
+	
+	End For
+	"""
+	#The random board for our program
+    BOARD, H, W = generate_board()
+    print np.matrix(BOARD)
+    #Mouse
+    MOUSE = (0, 0)
+    #initialize our Q matrix
+    Q = q_init(H, W)
+    update_q((0, 0), DN)
+    while BOARD[MOUSE[0][MOUSE[1] != 4:
+    	#TODO make best move or random move
+    	next_move = find_best_move()
+    	update_mouse(next_move)
+    	update_q(MOUSE, next_move)
+
+	
