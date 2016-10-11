@@ -29,6 +29,14 @@ def generate_board():
   return board, height, width
 
 def q_init(h, w):
+	"""Creates a Q with Square all set to 0
+	Args:
+		h (int): Height of the Q we want to generate
+		w (int): Width of the Q
+
+	Returns:
+		An HxW matrix of Squares
+	"""
 	q = []
 	for x in range(h):
 		q.append([])
@@ -60,7 +68,7 @@ def valid_moves(mouse):
 	return valid
 
 def get_reward(state, action):
-	"""Finds the reward for e from the current position making the given mov
+	"""Finds the reward for the from the current position making the given mov
 	Args:
 		state (int tuple): the current position
 		action (int tuple): the move to make
