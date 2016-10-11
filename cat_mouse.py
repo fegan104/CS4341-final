@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 def generate_board():
   """ Used to generate a random board with cheese, mouse traps, blocks, and exit door
@@ -44,12 +45,8 @@ def q_init(h, w):
 			q[x].append(Square())
 	return q
    
-def valid_moves(mouse):
+def valid_moves():
 	"""Used to find valid moves for a mouse on a given board.
-
-	Args:
-		mouse (int[]): A tuple of mouse coordinates on a board.
-		board (int[][]): A rectangular matrix of encoded baord-square values.
 
 	Return:
 		An array of possible moves.
@@ -60,8 +57,8 @@ def valid_moves(mouse):
 	
 	#check what moves don't go over the edge or hit a wall
 	for mv in MOVES:
-		x = mouse[0] + mv[0]
-		y = mouse[1] + mv[1]
+		x = MOUSE[0] + mv[0]
+		y = MOUSE[1] + mv[1]
 		if 0 <= x < width and 0 <= y < height and BOARD[x][y] != BLOCK:
 			valid.append(mv)
 
@@ -77,7 +74,7 @@ def get_reward(state, action):
 		the reward value form the board
 	"""
 	#find tile the move takes us to
-	next_sqr = BOARD[state[0] + action[0]][state[1] + action[1]]
+	next_sqr = Q[state[0]][state[1]]
 	#return a value from our Square based on how we got here
 	if action == UP:
 		return next_sqr.down
@@ -95,13 +92,36 @@ def update_q(state, action):
 		state (int tuple): The current position
 		action (int tuple): The move we want to make
 	"""
-	Q[state[0]][state[1]]
+	GAMMA = 0.8
+	#What are all possible squares we could get to and what move gets us there 
+	#((destination_state tuple), (move tuple))
+	possible = []
+	for m in valid_moves():
+		next_sqr = (MOUSE[0] + m[0], MOUSE[1] + m[1])
+		possible.append((next_sqr, m))
+	#Best move
+	MAX = max(map(lambda s: get_reward(s[0], s[1]), possible))
+	#Reward
+	R = get_reward(state, action)
+	new_q = R + GAMMA * MAX
+
+	if action == UP:
+		Q[state[0]][state[1]].down = new_q
+	elif action == DN:
+		Q[state[0]][state[1]].up = new_q
+	elif action == RT:
+		Q[state[0]][state[1]].left = new_q
+	elif action == LF:
+		Q[state[0]][state[1]].right = new_q
 
 class Square:
 	up = 0
 	down = 0
 	left = 0
 	right = 0
+
+	def __repr__(self):
+		return 'SQR(%s, %s, %s, %s)' % (self.up, self.right, self.down, self.left)
 #Board variables
 START = 0
 CHEESE = 1
@@ -117,17 +137,9 @@ MOVES = [UP, DN, RT, LF]
 
 #The random board for our program
 BOARD, H, W = generate_board()
-
+print np.matrix(BOARD)
+#Mouse
+MOUSE = (0, 0)
 #initialize our Q matrix
 Q = q_init(H, W)
-
-b1 = [[1, 1, 1],
-	  [1, 1, 1],
-	  [1, 1, 1]]
-b2 = [[1, 3, 1],
-	 [1, 1, 3],
-	 [1, 1, 1]]
-
-print valid_moves((1, 1))
-print valid_moves((1, 1))
-print valid_moves((0, 2))
+update_q((0, 0), DN)
