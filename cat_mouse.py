@@ -8,18 +8,18 @@ def generate_board():
   """
   width = random.randint(2,10)
   height = random.randint(2,10)
-  board = [[0 for x in range(height)] for y in range(width)]
+  board = [[0 for x in range(width)] for y in range(height)]
   
   #assign random nos from (0,3) to all places in board  
-  for w in range(width):
-    for h in range(height):
+  for w in range(height):
+    for h in range(width):
         board[w][h] = random.randint(0,3)
       
   #marking origin as safe position
   board[0][0] = 0
 
   #assign one random place in board as finish Goal
-  board[random.randint(1,width-1)][random.randint(1,height-1)] = 4
+  board[random.randint(1,height-1)][random.randint(1,width-1)] = 4
 
   #if no moves allowed initially then generate new board
   if board[1][0] == 2 or board[1][0] == 3:
@@ -30,9 +30,11 @@ def generate_board():
 
 def q_init(h, w):
 	q = []
-	for x in xrange(h):
-		for y in xrange(w):
-			q.append(Square())
+	for x in range(h):
+		q.append([])
+		for y in range(w):
+			q[x].append(Square())
+	return q
    
 def valid_moves(mouse):
 	"""Used to find valid moves for a mouse on a given board.
