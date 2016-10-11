@@ -1,13 +1,14 @@
 import random
 import numpy as np
 
-#Board variables
+# Board variables
 START = 0
 CHEESE = 1
 TRAP = 2
 BLOCK = 3
 GOAL = 4
 
+# generates a board
 def generate_board():
   """ Used to generate a random board with cheese, mouse traps, blocks, and exit door
   
@@ -36,6 +37,7 @@ def generate_board():
       
   return board, height, width
 
+# todo: write comment
 def q_init(h, w):
 	"""Creates a Q with Square all set to 0
 	Args:
@@ -52,6 +54,7 @@ def q_init(h, w):
 			q[x].append(Square())
 	return q
    
+# todo: write comment
 def valid_moves():
 	"""Used to find valid moves for a mouse on a given board.
 
@@ -71,6 +74,7 @@ def valid_moves():
 
 	return valid
 
+# todo: write comment
 def get_reward(state, action):
 	"""Finds the reward for the from the current position making the given move
 	Args:
@@ -92,6 +96,7 @@ def get_reward(state, action):
 	elif action == LF:
 		return next_sqr.right
 
+# todo: write comment
 def update_q(state, action):
 	"""Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
 
@@ -121,6 +126,7 @@ def update_q(state, action):
 	elif action == LF:
 		Q[state[0]][state[1]].right = new_q
 
+# Converts board variables into graphic symbols
 def symbolConvert(val):
 	if val == BLOCK:
 		return ' '
@@ -135,6 +141,17 @@ def symbolConvert(val):
 	else:
 		return val
 
+# Print the legend
+def printLegend():
+	print "MAP LEGEND"
+	print " '", symbolConvert(BLOCK), "': no possible paths (barrier)"
+	print " '", symbolConvert(CHEESE), "': cheese"
+	print " '", symbolConvert(TRAP), "': trap"
+	print " '", symbolConvert(START), "': normal path"
+	print " '", symbolConvert(GOAL), "': goal!!!"
+	print
+
+# Print the board
 def printBoard(board):
 	width = len(board[0])
 	height = len(board)
@@ -162,15 +179,6 @@ def printBoard(board):
 	print
 	print
 
-def printLegend():
-	print "MAP LEGEND"
-	print " '", symbolConvert(BLOCK), "': no possible paths (barrier)"
-	print " '", symbolConvert(CHEESE), "': cheese"
-	print " '", symbolConvert(TRAP), "': trap"
-	print " '", symbolConvert(START), "': normal path"
-	print " '", symbolConvert(GOAL), "': goal!!!"
-	print
-
 class Square:
 	up = 0
 	down = 0
@@ -180,21 +188,21 @@ class Square:
 	def __repr__(self):
 		return 'SQR(%s, %s, %s, %s)' % (self.up, self.right, self.down, self.left)
 
-#Move action variables
+# Move action variables
 UP = (-1, 0)
 DN = (1, 0)
 RT = (0, 1)
 LF = (0, -1)
 MOVES = [UP, DN, RT, LF]
 
-#The random board for our program
+# The random board for our program
 BOARD, H, W = generate_board()
 
 printLegend()
 printBoard(BOARD)
 
-#Mouse
+# Mouse
 MOUSE = (0, 0)
-#initialize our Q matrix
+# Initialize our Q matrix
 Q = q_init(H, W)
 update_q((0, 0), DN)
