@@ -89,7 +89,7 @@ def valid_moves():
 	for mv in MOVES:
 		x = MOUSE[0] + mv[0]
 		y = MOUSE[1] + mv[1]
-		if 0 <= x < width - 1 and 0 <= y < height - 1 and BOARD[x][y] != BLOCK:
+		if 0 <= x <= width - 1 and 0 <= y <= height - 1 and BOARD[x][y] != BLOCK:
 			valid.append(mv)
 
 	return valid
