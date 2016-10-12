@@ -29,13 +29,14 @@ class Square:
 	def __repr__(self):
 		return 'SQR(%s, %s, %s, %s)' % (self.up, self.right, self.down, self.left)
 
-def generate_board():
-	board =  [[0,0,0,2],
-	         [0,3,0,2],
-	         [0,0,3,4],
-	         [0,0,0,0]]
-	return (board, len(board), len(board[0]))
 def generate_board1():
+	board =  [[0,3,0,4,2],
+	         [0,2,0,0,0],
+	         [0,0,3,3,0],
+	         [2,0,0,2,0],
+	         [3,2,0,0,0]]
+	return (board, len(board), len(board[0]))
+def generate_board():
   """ Used to generate a random board with cheese, mouse traps, blocks, and exit door
   
   Return: 
@@ -49,7 +50,10 @@ def generate_board1():
   #assign random nos from (0,3) to all places in board  
   for w in range(height):
 	for h in range(width):
-		board[w][h] = random.randint(0,3)
+		x = random.randint(0,3)
+		if x == 1:
+			x = 0
+		board[w][h] = x 
 	  
   #marking origin as safe position
   board[0][0] = 0
@@ -275,20 +279,30 @@ def find_best_move(mouse):
 	print(possible)
 	#printprintBoard(BOARD)
 	qval = max(possible)
-	moves = valid_moves(mouse)
+	moves = []
+	validMoves = valid_moves(mouse)
 
 	if qval == 0:
+		if(Q[mouse[0]][mouse[1]].up == 0) and UP in validMoves:
+			moves.append(UP)
+		if Q[mouse[0]][mouse[1]].down == 0 and DN in validMoves:
+			moves.append(DN)
+		if Q[mouse[0]][mouse[1]].right ==0 and RT in validMoves:
+			moves.append(RT)
+		if Q[mouse[0]][mouse[1]].left ==0 and LF in validMoves:
+			moves.append(LF)
+
 		return moves[random.randint(0,len(moves)-1)]
 
 
 	
-	if qval == 	Q[mouse[0]][mouse[1]].up and UP in moves:
+	if qval == 	Q[mouse[0]][mouse[1]].up and UP in validMoves:
 		return UP
-	elif qval == Q[mouse[0]][mouse[1]].down and DN in moves:
+	elif qval == Q[mouse[0]][mouse[1]].down and DN in validMoves:
 		return DN
-	elif qval == Q[mouse[0]][mouse[1]].right and RT in moves:
+	elif qval == Q[mouse[0]][mouse[1]].right and RT in validMoves:
 		return RT
-	elif qval == Q[mouse[0]][mouse[1]].left and LF in moves:
+	elif qval == Q[mouse[0]][mouse[1]].left and LF in validMoves:
 		return LF
 
 
@@ -329,7 +343,7 @@ def learn(board, mouse):
 	i = 0
 	done = False
 	moves = []
-	while i < 200:
+	while i < 2000:
 		#TODO make random move sometimes
 		if (board[mouse[0]][mouse[1]] != 0):
 			#print moves
