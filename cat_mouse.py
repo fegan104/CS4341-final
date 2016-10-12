@@ -30,12 +30,13 @@ class Square:
 		return 'SQR(%s, %s, %s, %s)' % (self.up, self.right, self.down, self.left)
 
 def generate_board1():
-	board =  [[0,3,0,4,2],
-	         [0,2,0,0,0],
-	         [0,0,3,3,0],
+	board =  [[0,3,0,4,0],
+	         [0,1,2,2,0],
+	         [0,0,3,1,0],
 	         [2,0,0,2,0],
-	         [3,2,0,0,0]]
+	         [3,1,0,0,0]]
 	return (board, len(board), len(board[0]))
+
 def generate_board():
   """ Used to generate a random board with cheese, mouse traps, blocks, and exit door
   
@@ -50,9 +51,7 @@ def generate_board():
   #assign random nos from (0,3) to all places in board  
   for w in range(height):
 	for h in range(width):
-		x = random.randint(0,3)
-		if x == 1:
-			x = 0
+		x = random.randint(0, 3)
 		board[w][h] = x 
 	  
   #marking origin as safe position
@@ -136,7 +135,6 @@ def get_reward(state, action):
 
 	return rewardValue
 
-
 def update_q(state, action):
 	"""Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
 
@@ -144,7 +142,7 @@ def update_q(state, action):
 		state (int tuple): The current position
 		action (int tuple): The move we want to make
 	"""
-	GAMMA = 0.75
+	GAMMA = 0.1
 	#What are all possible squares we could get to and what move gets us there 
 	#((destination_state tuple), (move tuple))
 	possible = []
@@ -319,6 +317,7 @@ def find_best_move(mouse):
 			possible.append((Q[mouse[0]+mv[0]][mouse[1]+mv[1]].right, LF))
 	return sorted(possible, key=lambda p: p[0])[-1][1]
 	"""
+
 def learn(board, mouse):
 	"""
 	1. Set the gamma parameter, and environment rewards in matrix R.
@@ -343,9 +342,9 @@ def learn(board, mouse):
 	i = 0
 	done = False
 	moves = []
-	while i < 2000:
+	while i < 20000:
 		#TODO make random move sometimes
-		if (board[mouse[0]][mouse[1]] != 0):
+		if (board[mouse[0]][mouse[1]] == TRAP or board[mouse[0]][mouse[1]] ==  GOAL):
 			#print moves
 			moves = []
 			mouse = (0, 0)
@@ -355,12 +354,14 @@ def learn(board, mouse):
 			printBoard(board)
 			moves.append(next_move)
 			update_q(mouse, next_move)
+			if board[mouse[0]][mouse[1]] == CHEESE:
+				BOARD[mouse[0]][mouse[1]] = START
 			mouse = get_updated_mouse(mouse, next_move)
 		i += 1
 	return 0
 
 #The random board for our program
-BOARD, H, W = generate_board()
+BOARD, H, W = generate_board1()
 printBoard(BOARD)
 # initialize our Q matrix
 Q = q_init(H, W)
