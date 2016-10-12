@@ -8,6 +8,29 @@ TRAP = 2
 BLOCK = 3
 GOAL = 4
 
+# Reward constants
+CHEESE_REWARD = 100
+TRAP_REWARD = -500
+GOAL_REWARD = 500
+
+# Move action variables
+UP = (-1, 0)
+DN = (1, 0)
+RT = (0, 1)
+LF = (0, -1)
+MOVES = [UP, DN, RT, LF]
+#Mouse
+MOUSE = (0, 0)
+
+class Square:
+	up = 0
+	down = 0
+	left = 0
+	right = 0
+
+	def __repr__(self):
+		return 'SQR(%s, %s, %s, %s)' % (self.up, self.right, self.down, self.left)
+
 def generate_board():
   """ Used to generate a random board with cheese, mouse traps, blocks, and exit door
   
@@ -66,7 +89,7 @@ def valid_moves():
 	for mv in MOVES:
 		x = MOUSE[0] + mv[0]
 		y = MOUSE[1] + mv[1]
-		if 0 <= x < width and 0 <= y < height and BOARD[x][y] != BLOCK:
+		if 0 <= x < width - 1 and 0 <= y < height - 1 and BOARD[x][y] != BLOCK:
 			valid.append(mv)
 
 	return valid
@@ -81,17 +104,23 @@ def get_reward(state, action):
 	Returns:
 		the reward value form the board
 	"""
-	#find tile the move takes us to
-	next_sqr = Q[state[0]][state[1]]
-	#return a value from our Square based on how we got here
-	if action == UP:
-		return next_sqr.down
-	elif action == DN:
-		return next_sqr.up
-	elif action == RT:
-		return next_sqr.left
-	elif action == LF:
-		return next_sqr.right
+	newState = state
+	newState = (newState[0] + action[0] , newState[1] + action[1])
+	print "newState = " + str(newState)
+	rewardValue = 0
+
+	currentPossition = BOARD[ newState[0] ][ newState[1] ]
+
+	if currentPossition == CHEESE:
+		rewardValue = CHEESE_REWARD
+	elif currentPossition == TRAP:
+		rewardValue = TRAP_REWARD	
+	elif currentPossition == GOAL:
+		rewardValue = GOAL_REWARD
+	else: # No reward given
+		rewardValue = 0
+
+	return rewardValue
 
 def update_q(state, action):
 	"""Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
@@ -100,7 +129,7 @@ def update_q(state, action):
 		state (int tuple): The current position
 		action (int tuple): The move we want to make
 	"""
-	GAMMA = 0.8
+	GAMMA = 0.75
 	#What are all possible squares we could get to and what move gets us there 
 	#((destination_state tuple), (move tuple))
 	possible = []
@@ -108,7 +137,8 @@ def update_q(state, action):
 		next_sqr = (MOUSE[0] + m[0], MOUSE[1] + m[1])
 		possible.append((next_sqr, m))
 	#Best move
-	MAX = max(map(lambda s: get_reward(s[0], s[1]), possible))
+	#TODO Max[Q(next state, all actions)] what is this
+	MAX = max(map(lambda s: get_reward(state, s[1]), possible))
 	#Reward
 	R = get_reward(state, action)
 	new_q = R + GAMMA * MAX
@@ -123,6 +153,9 @@ def update_q(state, action):
 		Q[state[0]][state[1]].right = new_q
 
 def symbolConvert(val):
+	"""
+	Converts board variables into graphic symbols
+	"""
 	if val == BLOCK:
 		return ' '
 	elif val == CHEESE:
@@ -137,6 +170,9 @@ def symbolConvert(val):
 		return val
 
 def printLegend():
+	"""
+	Print the legend
+	"""
 	print "MAP LEGEND"
 	print " '", symbolConvert(BLOCK), "': no possible paths (barrier)"
 	print " '", symbolConvert(CHEESE), "': cheese"
@@ -145,7 +181,20 @@ def printLegend():
 	print " '", symbolConvert(GOAL), "': goal!!!"
 	print
 
+def print_move(move):
+	if move == UP:
+		print "UP"
+	elif move == DN:
+		print "DOWN"
+	elif move == RT:
+		print "RIGHT"
+	elif move == LF:
+		print "LEFT"
+
 def printBoard(board):
+	"""
+	Print the board
+	"""
 	width = len(board[0])
 	height = len(board)
 
@@ -172,23 +221,26 @@ def printBoard(board):
 	print
 	print
 
-class Square:
-	up = 0
-	down = 0
-	left = 0
-	right = 0
+def get_updated_mouse(mouse, move):
+	""" Returns the coordinates for a mouse after performing the move.
+	"""
+	next_mouse = (mouse[0] + move[0], mouse[1] + move[1])
+	return next_mouse
 
-	def __repr__(self):
-		return 'SQR(%s, %s, %s, %s)' % (self.up, self.right, self.down, self.left)
+def find_best_move():
+	possible = []
+	for mv in valid_moves():
+		if mv == UP:
+			possible.append((Q[MOUSE[0]+mv[0]][MOUSE[1]+mv[1]].down, UP))
+		elif mv == DN:
+			possible.append((Q[MOUSE[0]+mv[0]][MOUSE[1]+mv[1]].up, DN))
+		elif mv == RT:
+			possible.append((Q[MOUSE[0]+mv[0]][MOUSE[1]+mv[1]].left, RT))
+		elif mv == LF:
+			possible.append((Q[MOUSE[0]+mv[0]][MOUSE[1]+mv[1]].right, LF))
+	return sorted(possible, key=lambda p: p[0])[-1][1]
 
-# Move action variables
-UP = (-1, 0)
-DN = (1, 0)
-RT = (0, 1)
-LF = (0, -1)
-MOVES = [UP, DN, RT, LF]
-
-def learn():
+def learn(board, mouse):
 	"""
 	1. Set the gamma parameter, and environment rewards in matrix R.
 
@@ -209,16 +261,44 @@ def learn():
 	
 	End For
 	"""
-	#The random board for our program
-	BOARD, H, W = generate_board()
-	print np.matrix(BOARD)
-	#Mouse
-	MOUSE = (0, 0)
-	#initialize our Q matrix
-	Q = q_init(H, W)
-	while (BOARD[MOUSE[0]][MOUSE[1]] != 4):
-		#TODO make best move or random move
-		next_move = find_best_move()
-		update_mouse(next_move)
-		update_q(MOUSE, next_move)
+	i = 0
+	done = False
+	moves = []
+	while i < 10000000:
+		#TODO make random move sometimes
+		if (board[mouse[0]][mouse[1]] == 4):
+			print moves
+			moves = []
+			mouse = (0, 0)
+		else:
+			next_move = find_best_move()
+			moves.append(next_move)
+			update_q(mouse, next_move)
+			mouse = get_updated_mouse(mouse, next_move)
+		i += 1
 	return 0
+
+#The random board for our program
+# BOARD, H, W = generate_board()
+# printBoard(BOARD)
+#initialize our Q matrix
+# Q = q_init(H, W)
+
+# print "Best move is "
+# print_move(find_best_move())
+
+# learn(BOARD, MOUSE)
+BOARD=[[1, 1, 0],
+		[1, 1, 1],
+		[1, 1, 1]]
+MOUSE = (0, 2)
+map(lambda x: print_move(x), valid_moves())
+
+
+
+
+
+
+
+
+
