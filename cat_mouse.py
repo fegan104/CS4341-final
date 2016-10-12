@@ -19,8 +19,6 @@ DN = (1, 0)
 RT = (0, 1)
 LF = (0, -1)
 MOVES = [UP, DN, RT, LF]
-#Mouse
-MOUSE = (0, 0)
 
 class Square:
 	up = 0
@@ -75,20 +73,20 @@ def q_init(h, w):
 			q[x].append(Square())
 	return q
    
-def valid_moves():
+def valid_moves(mouse):
 	"""Used to find valid moves for a mouse on a given board.
 
 	Return:
 		An array of possible moves.
 	"""
-	width = len(BOARD)
-	height = len(BOARD[0])
+	width = len(BOARD[0])
+	height = len(BOARD)
 	valid = []
 	
 	#check what moves don't go over the edge or hit a wall
 	for mv in MOVES:
-		x = MOUSE[0] + mv[0]
-		y = MOUSE[1] + mv[1]
+		x = mouse[0] + mv[0]
+		y = mouse[1] + mv[1]
 		if 0 <= x <= width - 1 and 0 <= y <= height - 1 and BOARD[x][y] != BLOCK:
 			valid.append(mv)
 
@@ -106,7 +104,6 @@ def get_reward(state, action):
 	"""
 	newState = state
 	newState = (newState[0] + action[0] , newState[1] + action[1])
-	print "newState = " + str(newState)
 	rewardValue = 0
 
 	currentPossition = BOARD[ newState[0] ][ newState[1] ]
@@ -133,8 +130,8 @@ def update_q(state, action):
 	#What are all possible squares we could get to and what move gets us there 
 	#((destination_state tuple), (move tuple))
 	possible = []
-	for m in valid_moves():
-		next_sqr = (MOUSE[0] + m[0], MOUSE[1] + m[1])
+	for m in valid_moves(state):
+		next_sqr = (state[0] + m[0], state[1] + m[1])
 		possible.append((next_sqr, m))
 	#Best move
 	#TODO Max[Q(next state, all actions)] what is this
@@ -181,15 +178,15 @@ def printLegend():
 	print " '", symbolConvert(GOAL), "': goal!!!"
 	print
 
-def print_move(move):
+def print_move(move, mouse):
 	if move == UP:
-		print "UP"
+		print "UP" + " from " + str(mouse)
 	elif move == DN:
-		print "DOWN"
+		print "DOWN" + " from " + str(mouse)
 	elif move == RT:
-		print "RIGHT"
+		print "RIGHT" + " from " + str(mouse)
 	elif move == LF:
-		print "LEFT"
+		print "LEFT" + " from " + str(mouse)
 
 def printBoard(board):
 	"""
@@ -227,17 +224,17 @@ def get_updated_mouse(mouse, move):
 	next_mouse = (mouse[0] + move[0], mouse[1] + move[1])
 	return next_mouse
 
-def find_best_move():
+def find_best_move(mouse):
 	possible = []
-	for mv in valid_moves():
+	for mv in valid_moves(mouse):
 		if mv == UP:
-			possible.append((Q[MOUSE[0]+mv[0]][MOUSE[1]+mv[1]].down, UP))
+			possible.append((Q[mouse[0]+mv[0]][mouse[1]+mv[1]].down, UP))
 		elif mv == DN:
-			possible.append((Q[MOUSE[0]+mv[0]][MOUSE[1]+mv[1]].up, DN))
+			possible.append((Q[mouse[0]+mv[0]][mouse[1]+mv[1]].up, DN))
 		elif mv == RT:
-			possible.append((Q[MOUSE[0]+mv[0]][MOUSE[1]+mv[1]].left, RT))
+			possible.append((Q[mouse[0]+mv[0]][mouse[1]+mv[1]].left, RT))
 		elif mv == LF:
-			possible.append((Q[MOUSE[0]+mv[0]][MOUSE[1]+mv[1]].right, LF))
+			possible.append((Q[mouse[0]+mv[0]][mouse[1]+mv[1]].right, LF))
 	return sorted(possible, key=lambda p: p[0])[-1][1]
 
 def learn(board, mouse):
@@ -271,7 +268,8 @@ def learn(board, mouse):
 			moves = []
 			mouse = (0, 0)
 		else:
-			next_move = find_best_move()
+			next_move = find_best_move(mouse)
+			print_move(next_move, mouse)
 			moves.append(next_move)
 			update_q(mouse, next_move)
 			mouse = get_updated_mouse(mouse, next_move)
@@ -279,20 +277,12 @@ def learn(board, mouse):
 	return 0
 
 #The random board for our program
-# BOARD, H, W = generate_board()
-# printBoard(BOARD)
-#initialize our Q matrix
-# Q = q_init(H, W)
-
-# print "Best move is "
-# print_move(find_best_move())
-
-# learn(BOARD, MOUSE)
-BOARD=[[1, 1, 0],
-		[1, 1, 1],
-		[1, 1, 1]]
-MOUSE = (0, 2)
-map(lambda x: print_move(x), valid_moves())
+BOARD, H, W = generate_board()
+printBoard(BOARD)
+# initialize our Q matrix
+Q = q_init(H, W)
+#Learn the board
+learn(BOARD, (0, 0))
 
 
 
