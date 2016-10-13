@@ -12,6 +12,7 @@ TRAP = 2
 BLOCK = 3
 GOAL = 4
 MOUSE = 5
+NUMMOVES = 20000
 
 # Reward constants
 CHEESE_REWARD = 100
@@ -226,7 +227,7 @@ def symbolConvert(val):
 	elif val == GOAL:
 		return 'G'
 	elif val == MOUSE:
-		return 'o'
+		return 'M'
 	else:
 		return val
 
@@ -235,6 +236,7 @@ def printLegend():
 	Print the legend
 	"""
 	print "MAP LEGEND"
+	print " '", symbolConvert(MOUSE), "': mouse"
 	print " '", symbolConvert(BLOCK), "': no possible paths (barrier)"
 	print " '", symbolConvert(CHEESE), "': cheese"
 	print " '", symbolConvert(TRAP), "': trap"
@@ -353,7 +355,7 @@ def printAll(i, next_move, mouse, board):
 	printLegend()
 	print_move(next_move, mouse)
 	printBoard(board, mouse)
-	print " ", i, "out of 20000 moves"
+	print " ", i, "out of", NUMMOVES, "moves"
 	print
 	print
 
@@ -382,7 +384,7 @@ def learn(board, mouse):
 	done = False
 	moves = []
 	mouseStart = False
-	while i < 20000:
+	while i < NUMMOVES:
 		#TODO make random move sometimes
 		if (board[mouse[0]][mouse[1]] == TRAP or board[mouse[0]][mouse[1]] ==  GOAL):
 			#print moves
