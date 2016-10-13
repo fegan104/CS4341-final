@@ -383,6 +383,7 @@ def learn(board, mouse):
 			backupBoard[mouse[0]][mouse[1]] = START
 		mouse = get_updated_mouse(mouse, next_move)
 	if not solvable:
+                printAll(next_move, mouse, board)
 		print "No solution found"
 		return 1
 	return 0
