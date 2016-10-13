@@ -268,7 +268,9 @@ def printBoard(board, mouse):
 	for h in xrange(0, height):
 		print '  |',
 		for w in xrange(0, width):
-			val = backupBoard[h][w]
+			val = board[h][w]
+			if backupBoard[h][w] == CHEESE:
+				val = CHEESE
 			if h == mouse[0] and w == mouse[1]:
 				val = MOUSE
 
@@ -391,11 +393,13 @@ backupBoard = [[0 for x in range(W)] for y in range(H)]
 for x in range(len(BOARD)):
 	for y in range(len(BOARD[0])):
 		backupBoard[x][y] = BOARD[x][y]
+
 # initialize our Q matrix
 Q = q_init(H, W)
 #Learn the board
 NUM_LESSONS = 100000
 learn(BOARD, (0, 0))
+
 
 
 
