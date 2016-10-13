@@ -340,10 +340,9 @@ def printAll(next_move, mouse, board):
 def learn(board, mouse):
 	"""Trains our mouse and runs the program."""
 	i = 0
-	done = False
 	moves = []
-	solution = []
 	starting_board = board
+	solvable = False
 	while i < NUM_LESSONS:
 		if (board[mouse[0]][mouse[1]] == TRAP):
 			print "Died after %d moves " % len(moves)
@@ -352,6 +351,7 @@ def learn(board, mouse):
 			board = starting_board
 		elif(board[mouse[0]][mouse[1]] ==  GOAL):
 			#reset variables for next lesson
+			solvable = True
 			print "Found solution in %d moves " % len(moves)
 			moves = []
 			mouse = (0, 0)
@@ -368,7 +368,7 @@ def learn(board, mouse):
 
 	mouse = (0, 0)
 	moves = []
-	alive = True
+	alive = solvable
 	while alive:
 		alive = board[mouse[0]][mouse[1]] != GOAL and board[mouse[0]][mouse[1]] != TRAP
 		print "square = " + str(board[mouse[0]][mouse[1]])
@@ -383,7 +383,7 @@ def learn(board, mouse):
 	return 0
 
 #The random board for our program
-BOARD, H, W = generate_board3()
+BOARD, H, W = generate_board()
 backupBoard = [[0 for x in range(W)] for y in range(H)]
 for x in range(len(BOARD)):
 	for y in range(len(BOARD[0])):
