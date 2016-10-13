@@ -268,7 +268,7 @@ def printBoard(board, mouse):
 	for h in xrange(0, height):
 		print '  |',
 		for w in xrange(0, width):
-			val = board[h][w]
+			val = backupBoard[h][w]
 			if h == mouse[0] and w == mouse[1]:
 				val = MOUSE
 
@@ -329,39 +329,20 @@ def find_best_move(mouse):
 	elif qval == Q[mouse[0]][mouse[1]].left and LF in validMoves:
 		return LF
 
-def printAll(i, next_move, mouse, board):
+def printAll(next_move, mouse, board):
 	clear()
 	printLegend()
 	print_move(next_move, mouse)
 	printBoard(board, mouse)
-	print " ", i, "out of 20000 moves"
 	print
 	print
 
 def learn(board, mouse):
-	"""
-	1. Set the gamma parameter, and environment rewards in matrix R.
-
-	2. Initialize matrix Q to zero.
-	
-	3. For each episode:
-	
-	Select a random initial state.
-	
-	Do While the goal state hasn't been reached.
-	
-	Select one among all possible actions for the current state.
-	Using this possible action, consider going to the next state.
-	Get maximum Q value for this next state based on all possible actions.
-	Compute: Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
-	Set the next state as the current state.
-	End Do
-	
-	End For
-	"""
+	"""Trains our mouse and runs the program."""
 	i = 0
 	done = False
 	moves = []
+	solution = []
 	starting_board = board
 	while i < NUM_LESSONS:
 		if (board[mouse[0]][mouse[1]] == TRAP):
@@ -372,18 +353,11 @@ def learn(board, mouse):
 		elif(board[mouse[0]][mouse[1]] ==  GOAL):
 			#reset variables for next lesson
 			print "Found solution in %d moves " % len(moves)
-
 			moves = []
 			mouse = (0, 0)
 			board = starting_board
 		else:
 			next_move = find_best_move(mouse)
-			if i > (NUM_LESSONS - 50) and i < (NUM_LESSONS - 20):
-				printAll(i, next_move, mouse, board)
-				sleep(0.05)
-			elif i > (NUM_LESSONS - 20):
-				printAll(i, next_move, mouse, board)
-				sleep(0.3)
 			moves.append(next_move)
 			update_q(mouse, next_move)
 			#eat cheese after reaching it until next lesson
@@ -391,16 +365,34 @@ def learn(board, mouse):
 				BOARD[mouse[0]][mouse[1]] = START
 			mouse = get_updated_mouse(mouse, next_move)
 		i += 1
+
+	mouse = (0, 0)
+	moves = []
+	alive = True
+	while alive:
+		alive = board[mouse[0]][mouse[1]] != GOAL and board[mouse[0]][mouse[1]] != TRAP
+		print "square = " + str(board[mouse[0]][mouse[1]])
+		next_move = find_best_move(mouse)
+		printAll(next_move, mouse, board)
+		sleep(.25)
+		moves.append(next_move)
+		update_q(mouse, next_move)
+		if backupBoard[mouse[0]][mouse[1]] == CHEESE:
+			backupBoard[mouse[0]][mouse[1]] = START
+		mouse = get_updated_mouse(mouse, next_move)
 	return 0
 
 #The random board for our program
-BOARD, H, W = generate_board()
+BOARD, H, W = generate_board3()
+backupBoard = [[0 for x in range(W)] for y in range(H)]
+for x in range(len(BOARD)):
+	for y in range(len(BOARD[0])):
+		backupBoard[x][y] = BOARD[x][y]
 # initialize our Q matrix
 Q = q_init(H, W)
 #Learn the board
 NUM_LESSONS = 100000
 learn(BOARD, (0, 0))
-
 
 
 
