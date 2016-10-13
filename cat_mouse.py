@@ -1,5 +1,10 @@
+import sys
+import os
+clear = lambda: os.system('clear')
+
 import random
 import numpy as np
+from time import sleep
 
 # Board variables
 START = 0
@@ -7,6 +12,7 @@ CHEESE = 1
 TRAP = 2
 BLOCK = 3
 GOAL = 4
+MOUSE = 5
 
 # Reward constants
 CHEESE_REWARD = 100
@@ -201,6 +207,8 @@ def symbolConvert(val):
 		return '.'
 	elif val == GOAL:
 		return 'G'
+	elif val == MOUSE:
+		return 'o'
 	else:
 		return val
 
@@ -226,13 +234,14 @@ def print_move(move, mouse):
 	elif move == LF:
 		print "LEFT" + " from " + str(mouse)
 
-def printBoard(board):
+def printBoard(board, mouse):
 	"""
 	Print the board
 	"""
 	width = len(board[0])
 	height = len(board)
 
+	print
 	print "BOARD"
 	print
 	print '  ',
@@ -244,6 +253,9 @@ def printBoard(board):
 		print '  |',
 		for w in xrange(0, width):
 			val = board[h][w]
+			if h == mouse[0] and w == mouse[1]:
+				val = MOUSE
+
 			print symbolConvert(val),
 
 			
@@ -274,7 +286,7 @@ def find_best_move(mouse):
 			possible.append(Q[mouse[0]][mouse[1]].right)
 		elif mv == LF:
 			possible.append(Q[mouse[0]][mouse[1]].left)
-	print(possible)
+	# print(possible)
 	#printprintBoard(BOARD)
 	qval = max(possible)
 	moves = []
@@ -318,6 +330,15 @@ def find_best_move(mouse):
 	return sorted(possible, key=lambda p: p[0])[-1][1]
 	"""
 
+def printAll(i, next_move, mouse, board):
+	clear()
+	printLegend()
+	print_move(next_move, mouse)
+	printBoard(board, mouse)
+	print " ", i, "out of 20000 moves"
+	print
+	print
+
 def learn(board, mouse):
 	"""
 	1. Set the gamma parameter, and environment rewards in matrix R.
@@ -342,6 +363,7 @@ def learn(board, mouse):
 	i = 0
 	done = False
 	moves = []
+	mouseStart = False
 	while i < 20000:
 		#TODO make random move sometimes
 		if (board[mouse[0]][mouse[1]] == TRAP or board[mouse[0]][mouse[1]] ==  GOAL):
@@ -350,8 +372,14 @@ def learn(board, mouse):
 			mouse = (0, 0)
 		else:
 			next_move = find_best_move(mouse)
-			print_move(next_move, mouse)
-			printBoard(board)
+
+			if i > 19950 and i < 19980:
+				printAll(i, next_move, mouse, board)
+				sleep(0.05)
+			elif i > 19980:
+				printAll(i, next_move, mouse, board)
+				sleep(0.3)
+
 			moves.append(next_move)
 			update_q(mouse, next_move)
 			if board[mouse[0]][mouse[1]] == CHEESE:
@@ -361,13 +389,12 @@ def learn(board, mouse):
 	return 0
 
 #The random board for our program
-BOARD, H, W = generate_board1()
-printBoard(BOARD)
+BOARD, H, W = generate_board()
+# printBoard(BOARD, mouse)
 # initialize our Q matrix
 Q = q_init(H, W)
 #Learn the board
 learn(BOARD, (0, 0))
-
 
 
 
