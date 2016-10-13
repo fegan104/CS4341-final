@@ -43,6 +43,22 @@ def generate_board1():
 	         [3,1,0,0,0]]
 	return (board, len(board), len(board[0]))
 
+def generate_board2():
+	board =  [[0,3,0,4,0],
+	          [0,1,2,2,0],
+	          [0,0,3,1,0],
+	          [2,0,0,2,0],
+	          [3,1,0,0,0]]
+	return (board, len(board), len(board[0]))
+
+def generate_board3():
+	board =  [[0,0,0,0,0],
+	          [0,1,0,2,0],
+	          [3,2,0,1,0],
+	          [2,0,2,2,0],
+	          [3,1,0,0,4]]
+	return (board, len(board), len(board[0]))
+
 def generate_board():
   """ Used to generate a random board with cheese, mouse traps, blocks, and exit door
   
@@ -148,7 +164,7 @@ def update_q(state, action):
 		state (int tuple): The current position
 		action (int tuple): The move we want to make
 	"""
-	GAMMA = 0.1
+	GAMMA = 0.5
 	#What are all possible squares we could get to and what move gets us there 
 	#((destination_state tuple), (move tuple))
 	possible = []
@@ -389,8 +405,10 @@ def learn(board, mouse):
 	return 0
 
 #The random board for our program
+
 BOARD, H, W = generate_board()
 # printBoard(BOARD, mouse)
+
 # initialize our Q matrix
 Q = q_init(H, W)
 #Learn the board
