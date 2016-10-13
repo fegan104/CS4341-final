@@ -48,6 +48,7 @@ def generate_board2():
 			  [3,2,0,1,0,0,0,0,2,0],
 			  [2,0,2,2,0,2,3,4,0,3],
 			  [3,1,0,0,0,3,1,0,0,0]]
+
 	return (board, len(board), len(board[0]))
 
 def generate_board3():
