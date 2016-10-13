@@ -345,14 +345,14 @@ def learn(board, mouse):
 	solvable = False
 	while i < NUM_LESSONS:
 		if (board[mouse[0]][mouse[1]] == TRAP):
-			print "Died after %d moves " % len(moves)
+			# print "Died after %d moves " % len(moves)
 			moves = []
 			mouse = (0, 0)
 			board = starting_board
 		elif(board[mouse[0]][mouse[1]] ==  GOAL):
 			#reset variables for next lesson
 			solvable = True
-			print "Found solution in %d moves " % len(moves)
+			# print "Found solution in %d moves " % len(moves)
 			moves = []
 			mouse = (0, 0)
 			board = starting_board
@@ -380,10 +380,13 @@ def learn(board, mouse):
 		if backupBoard[mouse[0]][mouse[1]] == CHEESE:
 			backupBoard[mouse[0]][mouse[1]] = START
 		mouse = get_updated_mouse(mouse, next_move)
+	if not solvable:
+		print "No solution found"
+		return 1
 	return 0
 
 #The random board for our program
-BOARD, H, W = generate_board3()
+BOARD, H, W = generate_board()
 backupBoard = [[0 for x in range(W)] for y in range(H)]
 for x in range(len(BOARD)):
 	for y in range(len(BOARD[0])):
