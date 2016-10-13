@@ -383,7 +383,7 @@ def learn(board, mouse):
 	return 0
 
 #The random board for our program
-BOARD, H, W = generate_board()
+BOARD, H, W = generate_board3()
 backupBoard = [[0 for x in range(W)] for y in range(H)]
 for x in range(len(BOARD)):
 	for y in range(len(BOARD[0])):
