@@ -38,11 +38,11 @@ def generate_board1():
 	return (board, len(board), len(board[0]))
 
 def generate_board2():
-	board =  [[0,3,0,4,0],
-	          [0,1,2,2,0],
-	          [0,0,3,1,0],
-	          [2,0,0,2,0],
-	          [3,1,0,0,0]]
+	board =  [[0,3,1,3,2],
+	          [0,3,0,0,0],
+	          [0,3,0,2,0],
+	          [0,0,0,2,0],
+	          [1,3,2,3,4]]
 	return (board, len(board), len(board[0]))
 
 def generate_board3():
@@ -113,11 +113,6 @@ def valid_moves(mouse):
 	for mv in MOVES:
 		x = mouse[0] + mv[0]
 		y = mouse[1] + mv[1]
-		"""
-		print x,y
-		print "width:"
-		print width,height
-		"""
 		if 0 <= x <= width - 1 and 0 <= y <= height - 1:
 			if BOARD[x][y] != BLOCK:
 				valid.append(mv)
@@ -234,13 +229,13 @@ def printLegend():
 
 def print_move(move, mouse):
 	if move == UP:
-		print "UP" + " from " + str(mouse)
+		print "UP"
 	elif move == DN:
-		print "DOWN" + " from " + str(mouse)
+		print "DOWN"
 	elif move == RT:
-		print "RIGHT" + " from " + str(mouse)
+		print "RIGHT"
 	elif move == LF:
-		print "LEFT" + " from " + str(mouse)
+		print "LEFT"
 
 def printBoard(board):
 	"""
@@ -248,8 +243,6 @@ def printBoard(board):
 	"""
 	width = len(board[0])
 	height = len(board)
-
-	print "BOARD"
 	print
 	print '  ',
 	for w in xrange(-1, width):
@@ -281,7 +274,6 @@ def get_updated_mouse(mouse, move):
 def find_best_move(mouse):
 	possible = []
 	for mv in valid_moves(mouse):
-		#print_move(mv,mouse)
 		if mv == UP:
 			possible.append(Q[mouse[0]][mouse[1]].up)
 		elif mv == DN:
@@ -290,8 +282,6 @@ def find_best_move(mouse):
 			possible.append(Q[mouse[0]][mouse[1]].right)
 		elif mv == LF:
 			possible.append(Q[mouse[0]][mouse[1]].left)
-	print(possible)
-	#printprintBoard(BOARD)
 	qval = max(possible)
 	moves = []
 	validMoves = valid_moves(mouse)
@@ -358,18 +348,20 @@ def learn(board, mouse):
 	i = 0
 	done = False
 	moves = []
-	while i < 20000:
+	starting_board = board
+	while i < 10000:
 		#TODO make random move sometimes
 		if (board[mouse[0]][mouse[1]] == TRAP or board[mouse[0]][mouse[1]] ==  GOAL):
-			#print moves
+			#reset variables for next lesson
+			print "Found solution in %d moves " % len(moves)
 			moves = []
 			mouse = (0, 0)
+			board = starting_board
 		else:
 			next_move = find_best_move(mouse)
-			print_move(next_move, mouse)
-			printBoard(board)
 			moves.append(next_move)
 			update_q(mouse, next_move)
+			#eat cheese after reaching it until next lesson
 			if board[mouse[0]][mouse[1]] == CHEESE:
 				BOARD[mouse[0]][mouse[1]] = START
 			mouse = get_updated_mouse(mouse, next_move)
@@ -377,7 +369,7 @@ def learn(board, mouse):
 	return 0
 
 #The random board for our program
-BOARD, H, W = generate_board3()
+BOARD, H, W = generate_board2()
 printBoard(BOARD)
 # initialize our Q matrix
 Q = q_init(H, W)
