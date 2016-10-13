@@ -271,6 +271,8 @@ def printBoard(board, mouse):
 		print '  |',
 		for w in xrange(0, width):
 			val = board[h][w]
+			if backupBoard[h][w] == CHEESE:
+				val = CHEESE
 			if h == mouse[0] and w == mouse[1]:
 				val = MOUSE
 
@@ -348,12 +350,12 @@ def find_best_move(mouse):
 	return sorted(possible, key=lambda p: p[0])[-1][1]
 	"""
 
-def printAll(i, next_move, mouse, board):
+def printAll(next_move, mouse, board):
 	clear()
 	printLegend()
 	print_move(next_move, mouse)
 	printBoard(board, mouse)
-	print " ", i, "out of 20000 moves"
+	#print " ", i, "out of 20000 moves"
 	print
 	print
 
@@ -391,12 +393,6 @@ def learn(board, mouse):
 		else:
 			next_move = find_best_move(mouse)
 
-			if i > 19950 and i < 19980:
-				printAll(i, next_move, mouse, board)
-				sleep(0.05)
-			elif i > 19980:
-				printAll(i, next_move, mouse, board)
-				sleep(0.3)
 
 			moves.append(next_move)
 			update_q(mouse, next_move)
@@ -404,17 +400,45 @@ def learn(board, mouse):
 				BOARD[mouse[0]][mouse[1]] = START
 			mouse = get_updated_mouse(mouse, next_move)
 		i += 1
+
+	moves = []
+	mouse = (0, 0)
+	x = 0
+	while x < 15:
+		#TODO make random move sometimes
+		if (board[mouse[0]][mouse[1]] == TRAP or board[mouse[0]][mouse[1]] ==  GOAL):
+			printAll(next_move, mouse, board)
+			return 1
+		else:
+			next_move = find_best_move(mouse)
+			printAll(next_move, mouse, board)
+			sleep(1)
+			moves.append(next_move)
+			update_q(mouse, next_move)
+			if backupBoard[mouse[0]][mouse[1]] == CHEESE:
+				backupBoard[mouse[0]][mouse[1]] = START
+			mouse = get_updated_mouse(mouse, next_move)
+		x+=1
 	return 0
 
 #The random board for our program
 
 BOARD, H, W = generate_board()
+backupBoard = [[0 for x in range(W)] for y in range(H)]
+for x in range(len(BOARD)):
+	for y in range(len(BOARD[0])):
+		backupBoard[x][y] = BOARD[x][y]
+
 # printBoard(BOARD, mouse)
 
 # initialize our Q matrix
 Q = q_init(H, W)
 #Learn the board
-learn(BOARD, (0, 0))
+result = learn(BOARD, (0, 0))
+
+if result == 0:
+	print "Goal Inaccessible"
+else: print "Goal Reached"
 
 
 
