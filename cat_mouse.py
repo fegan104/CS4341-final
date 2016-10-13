@@ -1,5 +1,9 @@
+import sys
+import os
+
 import random
 import numpy as np
+from time import sleep
 
 # Board variables
 START = 0
@@ -7,6 +11,7 @@ CHEESE = 1
 TRAP = 2
 BLOCK = 3
 GOAL = 4
+MOUSE = 5
 
 # Reward constants
 CHEESE_REWARD = 100
@@ -28,6 +33,9 @@ class Square:
 
 	def __repr__(self):
 		return 'SQR(%s, %s, %s, %s)' % (self.up, self.right, self.down, self.left)
+
+def clear():
+    os.system('cls' if os.name=='nt' else 'clear')
 
 def generate_board1():
 	board =  [[0,3,0,4,0],
@@ -218,6 +226,8 @@ def symbolConvert(val):
 		return '.'
 	elif val == GOAL:
 		return 'G'
+	elif val == MOUSE:
+		return 'o'
 	else:
 		return val
 
@@ -243,7 +253,7 @@ def print_move(move, mouse):
 	elif move == LF:
 		print "LEFT"
 
-def printBoard(board):
+def printBoard(board, mouse):
 	"""
 	Print the board
 	"""
@@ -259,6 +269,9 @@ def printBoard(board):
 		print '  |',
 		for w in xrange(0, width):
 			val = board[h][w]
+			if h == mouse[0] and w == mouse[1]:
+				val = MOUSE
+
 			print symbolConvert(val),
 
 			
@@ -316,6 +329,15 @@ def find_best_move(mouse):
 	elif qval == Q[mouse[0]][mouse[1]].left and LF in validMoves:
 		return LF
 
+def printAll(i, next_move, mouse, board):
+	clear()
+	printLegend()
+	print_move(next_move, mouse)
+	printBoard(board, mouse)
+	print " ", i, "out of 20000 moves"
+	print
+	print
+
 def learn(board, mouse):
 	"""
 	1. Set the gamma parameter, and environment rewards in matrix R.
@@ -350,11 +372,18 @@ def learn(board, mouse):
 		elif(board[mouse[0]][mouse[1]] ==  GOAL):
 			#reset variables for next lesson
 			print "Found solution in %d moves " % len(moves)
+
 			moves = []
 			mouse = (0, 0)
 			board = starting_board
 		else:
 			next_move = find_best_move(mouse)
+			if i > (NUM_LESSONS - 50) and i < (NUM_LESSONS - 20):
+				printAll(i, next_move, mouse, board)
+				sleep(0.05)
+			elif i > (NUM_LESSONS - 20):
+				printAll(i, next_move, mouse, board)
+				sleep(0.3)
 			moves.append(next_move)
 			update_q(mouse, next_move)
 			#eat cheese after reaching it until next lesson
@@ -365,14 +394,12 @@ def learn(board, mouse):
 	return 0
 
 #The random board for our program
-BOARD, H, W = generate_board2()
-printBoard(BOARD)
+BOARD, H, W = generate_board()
 # initialize our Q matrix
 Q = q_init(H, W)
 #Learn the board
 NUM_LESSONS = 100000
 learn(BOARD, (0, 0))
-
 
 
 
