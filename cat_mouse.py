@@ -1,6 +1,5 @@
 import sys
 import os
-clear = lambda: os.system('clear')
 
 import random
 import numpy as np
@@ -34,6 +33,9 @@ class Square:
 
 	def __repr__(self):
 		return 'SQR(%s, %s, %s, %s)' % (self.up, self.right, self.down, self.left)
+
+def clear():
+    os.system('cls' if os.name=='nt' else 'clear')
 
 def generate_board1():
 	board =  [[0,3,0,4,0],
